@@ -1,0 +1,12 @@
+#!/usr/bin/expect -f
+
+set ip "10.245.0.110"
+set timeout 60
+
+spawn telnet $ip 1234 
+expect {
+     "root#" {send "gtft\r";exp_continue}
+     "coltools#" {send "showChannels workSheet-1.0_workSheet2\r";exp_continue}
+     "eomsDistributeThread8" {exit}
+}
+expect eof
