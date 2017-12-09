@@ -198,10 +198,9 @@ else
    echo "FAIL:The sslverify is not setted false ,Please mofify config /etc/yum.conf." >> /opt/ansible/packet/system_reports
 fi
 
-sysctl -a|grep tcp_keepalive_intvl|awk -F '=' '{print $2}'
 
 #net.ipv4.tcp_keepalive_intvl temporarily
-temp_tcp_keepalive_invel=`sysctl -a|grep tcp_keepalive_intvl|awk -F '=' '{print $2}'|sed s'/ //'`
+temp_tcp_keepalive_invel=`sysctl -a|grep net.ipv4.tcp_keepalive_intvl|awk -F '=' '{print $2}'|sed s'/ //'`
 if [ "$temp_tcp_keepalive_invel"x = "15"x ]
 then
    echo "OK:The net.ipv4.tcp_keepalive_intvl is setted to 15 temporarily." >> /opt/ansible/packet/system_reports
@@ -218,6 +217,15 @@ else
    echo "FAIL:The net.ipv4.tcp_keepalive_intvl is setted to $tcp_keepalive_invel ,not setted to 15(recommended value),please check the config /etc/sysctl.conf" >> /opt/ansible/packet/system_reports
 fi
 
+#net.ipv4.tcp_keepalive_probes temporarily
+temp_tcp_keepalive_probes=`sysctl -a|grep net.ipv4.tcp_keepalive_probes|awk -F '=' '{print $2}'|sed s'/ //'`
+if [ "$temp_tcp_keepalive_probes"x = "3"x ]
+then
+   echo "OK:The net.ipv4.tcp_keepalive_probes is setted to 3 temporarily." >> /opt/ansible/packet/system_reports
+else
+   echo "FAIL:The net.ipv4.tcp_keepalive_probes is setted to $tcp_keepalive_probes,but not setted to 3(recommended value),please check the config /etc/sysctl.conf" >> /opt/ansible/packet/system_reports
+fi
+
 #net.ipv4.tcp_keepalive_probes
 tcp_keepalive_probes=`grep "^net.ipv4.tcp_keepalive_probes" /etc/sysctl.conf |awk -F "=" '{print $2}'|sed s'/ //'`
 if [ "$tcp_keepalive_probes"x = "3"x ]
@@ -225,6 +233,15 @@ then
    echo "OK:The net.ipv4.tcp_keepalive_probes is setted to 3." >> /opt/ansible/packet/system_reports
 else
    echo "FAIL:The net.ipv4.tcp_keepalive_probes is setted to $tcp_keepalive_probes,but not setted to 3(recommended value),please check the config /etc/sysctl.conf" >> /opt/ansible/packet/system_reports
+fi
+
+#net.ipv4.tcp_keepalive_time temporarily
+temp_tcp_keepalive_time=`sysctl -a|grep net.ipv4.tcp_keepalive_time|awk -F '=' '{print $2}'|sed s'/ //'`
+if [ "$temp_tcp_keepalive_time"x = "60"x ]
+then
+   echo "OK:The net.ipv4.tcp_keepalive_time is setted to 60 temporarily." >> /opt/ansible/packet/system_reports
+else
+   echo "FAIL:The net.ipv4.tcp_keepalive_time is setted to $tcp_keepalive_time ,but not setted to 60(recommended value),please check the config /etc/sysctl.conf" >> /opt/ansible/packet/system_reports
 fi
 
 #net.ipv4.tcp_keepalive_time
@@ -262,3 +279,30 @@ then
 else
    echo "FAIL:The vm.swappiness is setted to $swappiness,but not setted to 0(recommended value),please check the config /etc/sysctl.conf" >> /opt/ansible/packet/system_reports
 fi
+
+#vm.overcommit_memory
+overcommit_memory=`grep "^vm.overcommit_memory" /etc/sysctl.conf |awk -F "=" '{print $2}'|sed s'/ //'`
+if [ "$overcommit_memory"x = "1"x ]
+then
+   echo "OK:The vm.overcommit_memory is setted to 1." >> /opt/ansible/packet/system_reports
+else
+   echo "FAIL:The vm.overcommit_memory is setted to $overcommit_memory,but not setted to 1(recommended value),please check the config /etc/sysctl.conf" >> /opt/ansible/packet/system_reports
+fi
+
+#check oracle-client
+if [ -d /opt/xdpp/oracle/instantclient_11_2 ]
+then 
+   echo "OK: The oracle client is installed successfully."  >> /opt/ansible/packet/system_reports
+else
+   echo "FAIL: The oracle client is not installed ,Please Check it ." >> /opt/ansible/packet/system_reports
+fi
+
+#check NLS_LANG
+nlslang=`grep "^export NLS_LANG" /etc/profile |awk -F "=" '{print $2}'|sed s'/ //'`
+if [ "$nlslang"x = "AMERICAN_AMERICA.ZHS16GBK"x ]
+then
+   echo "OK:The NLS_LANG is setted to AMERICAN_AMERICA.ZHS16GBK." >> /opt/ansible/packet/system_reports
+else
+   echo "FAIL:The NLS_LANG is setted to $nlslang ,but not setted to AMERICAN_AMERICA.ZHS16GBK(recommended value),please check the config /etc/profile" >> /opt/ansible/packet/system_reports
+fi
+
